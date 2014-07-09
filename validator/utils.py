@@ -18,6 +18,12 @@ TYPE_PIPELINE = {
 }
 
 def get_line_type(line):
+    """
+    获取一个行的类型的逻辑。
+
+    :param line:
+    :return:
+    """
     line = line.strip()
     if line == '':
         return 'empty'
@@ -39,6 +45,7 @@ def get_line_type(line):
 
 def format_error(error):
     """
+    格式化错误信息。
 
     :param error:
     :return:
@@ -53,6 +60,12 @@ def format_error(error):
 
 
 def check_price(price):
+    """
+    检查一个价格是否是合法的，如果不合法就返回对应的错误信息。
+
+    :param price:
+    :return:
+    """
     try:
         price = float(price)
     except ValueError:
