@@ -1,0 +1,54 @@
+<html lang="zh">
+<head>
+    <title>菜单数据校验</title>
+    <style>
+        textarea {
+            width: 600px;
+            height: 700px;
+            float:left;
+        }
+        pre {
+            line-height: 4px;
+            font-size: 14px;
+            white-space: pre-line;
+            float: right;
+        }
+        ul {
+            color: red;
+        }
+        .error{
+            background-color: yellow;
+        }
+    </style>
+</head>
+
+<body>
+<div style="display: inline-block">
+    <form action="" method="post">
+        <label>
+            <textarea name="data">{{ data }}</textarea>
+        </label>
+        <input type="submit" value="提交" />
+    </form>
+
+</div>
+
+<pre style="display: inline-block">
+    {% for line_no, data, error in formatted_data %}
+        <span class="{% if error %}error{% endif %}" >
+            <span style="color: #008080;">{{ line_no }}</span> <span>{{ data }}</span>
+        </span>
+    {% endfor %}
+</pre>
+<div>
+    <ul>
+        {% for error in errors %}
+            <li>{{ error }}</li>
+        {% empty %}
+            <li style="color: green;">检查通过</li>
+        {% endfor %}
+    </ul>
+</div>
+
+</body>
+</html>
