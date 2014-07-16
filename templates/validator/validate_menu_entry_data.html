@@ -1,4 +1,4 @@
-<html lang="zh">
+{% load staticfiles %}<html lang="zh">
 <head>
     <title>菜单数据校验</title>
     <style>
@@ -8,7 +8,6 @@
             float:left;
         }
         pre {
-            line-height: 4px;
             font-size: 14px;
             white-space: pre-line;
             float: right;
@@ -20,33 +19,91 @@
             background-color: yellow;
         }
     </style>
+    <script src="{% static 'js/jquery-2.1.1.min.js' %}"></script>
+    <script src="{% static 'js/jquery-linedtextarea.js' %}"></script>
+    <link href="{% static 'js/jquery-linedtextarea.css' %}" type="text/css" rel="stylesheet" />
 </head>
 
 <body>
 <div style="display: inline-block">
-    <form action="" method="get">
-        <label>
-            <textarea name="data">{{ data }}</textarea>
-        </label>
-        <input type="submit" value="提交" />
-    </form>
-
+    <label>
+        <textarea id="raw_data" class="lined" rows="10" cols="60"></textarea>
+    </label>
 </div>
 
-<pre style="display: inline-block">
-    {% for line_no, data, error in formatted_data %}
-        <span class="{% if error %}error{% endif %}" >
-            <span style="color: #008080;">{{ line_no }}</span> <span>{{ data }}</span>
-        </span>
-    {% endfor %}
+<script>
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    var update_result = function () {
+        var post_url = '{% url 'ajax_format_input' %}',
+                raw_data = $('#raw_data').val(),
+                csrftoken = getCookie('csrftoken');
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        $.post(post_url, {data: raw_data, csrftoken: csrftoken}, function (data) {
+            var html = '';
+
+            for (var i = 0; i < data.formatted_data.length; i++) {
+                var obj = data.formatted_data[i],
+                        line_no = obj[0],
+                        content = obj[1],
+                        error = obj[2];
+
+                var line = '<span class="';
+                if (error) {line += 'error'}
+                line += '"><span style="color: #008080;">' + line_no + '</span> <span>' + content + '</span></span><br>';
+                html += line;
+            }
+            $('#formatted_data').html(html);
+
+
+            var error_html = '';
+            for (var j = 0; j < data.errors.length; j++) {
+                var err = data.errors[j];
+                error_html += '<li>' + err + '</li>';
+            }
+            if (!error_html) {
+                error_html = '<li style="color: green;">检查通过</li>';
+            }
+            $('#error_list').html(error_html);
+        })
+    };
+
+    $('#raw_data').bind('paste', update_result).on('keyup', update_result);
+
+</script>
+
+<pre id="formatted_data" style="display: inline-block">
 </pre>
+
 <div>
-    <ul>
-        {% for error in errors %}
-            <li>{{ error }}</li>
-        {% empty %}
-            <li style="color: green;">检查通过</li>
-        {% endfor %}
+    <ul id="error_list">
+        <li style="color: green;">检查通过</li>
     </ul>
 </div>
 

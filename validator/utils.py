@@ -54,7 +54,7 @@ def format_error(error):
         return []
     else:
         ret = []
-        for idx, msg in error.items():
+        for idx, msg in sorted(error.items(), key=lambda x: x[0]):
             ret.append('第{}行错误，{}'.format(idx+1, msg))
         return ret
 
@@ -81,7 +81,7 @@ def format_data(data):
     :param data:
     :return:
     """
-    data_list = data.split('\r\n')
+    data_list = data.split('\n')
 
     # 截取带行号的数据信息，剔除掉空行与注释。
     non_empty_data = {
