@@ -4,6 +4,7 @@ import json
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.views.decorators.csrf import csrf_exempt
 
 from django.views.decorators.http import require_POST
 from validator.utils import format_data, format_error
@@ -18,6 +19,7 @@ def validate_menu_entry_data(request):
     return render_to_response('validator/validate_menu_entry_data.html', RequestContext(request))
 
 
+@csrf_exempt
 @require_POST
 def format_input(request):
     """
